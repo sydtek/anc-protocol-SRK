@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dynamic ANC Protocol by SRK</title>
+
+<style>
+body { 
+  font-family: 'Segoe UI', Tahoma, sans-serif; 
+  background:linear-gradient(135deg,#eef2f3,#dfe9f3);
+  margin:0;
+  padding:0;
+}
+
+h1 { font-size: 2em; color:#2c3e50; }
+h2 { font-size: 1.5em; color:#1a5dcc; }
+
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50% { opacity:0.6; }
+}
+
+.alert { 
+  animation: blink 1.5s infinite; 
+  color:red; 
+  font-weight:bold; 
+  background:#fff3cd;
+  padding:12px;
+  border-radius:6px;
+  margin-top:15px;
+  border-left:5px solid orange;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:12px;
+}
+
+h1{
+  color:white;
+  background:#2c7be5;
+  padding:15px;
+  border-radius:8px;
+  text-align:center;
+  box-shadow:0 3px 6px rgba(0,0,0,0.2);
+}
+
+label{
+  font-weight:bold;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  margin-bottom:15px;
+  font-size:16px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Updated Generate Button */
+button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #2c7be5, #00a8ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(44, 123, 229, 0.4); 
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(44, 123, 229, 0.5);
+}
+
+/* Back to Top Button */
+#backToTop {
+  display: none; 
+  position: fixed; 
+  bottom: 20px; 
+  right: 20px; 
+  z-index: 99; 
+  border: none; 
+  outline: none; 
+  background-color: #2c7be5; 
+  color: white; 
+  cursor: pointer; 
+  padding: 12px 18px; 
+  border-radius: 50px; 
+  font-size: 16px; 
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  width: auto;
+}
+
+#backToTop:hover {
+  background-color: #1a5dcc; 
+  transform: scale(1.05);
+}
+
+/* Tighter Result Box */
+.resultbox {
+  background: white;
+  padding: 12px; 
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.resultbox:hover {
+  box-shadow: 0 8px 20px rgba(44,123,229,0.3);
+  transform: translateY(-3px);
+}
+
+/* Stacked Tables (Cards) */
+table, tbody, tr, th, td {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+table {
+  margin-top: 10px;
+  background: transparent;
+}
+
+tr {
+  margin-bottom: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow: hidden; 
+}
+
+th {
+  background: #2c7be5;
+  color: white;
+  padding: 8px 12px; 
+  font-size: 16px; 
+  border: none;
+  text-align: left;
+}
+
+td {
+  padding: 8px 12px 15px 12px; 
+  font-size: 15px; 
+  line-height: 1.4; 
+  border: 1px solid #e0e0e0;
+  border-top: none;
+}
+
+tr:nth-child(even) td {
+  background: #f8fbff;
+}
+
+table tr:hover {
+  background-color: #e6f0ff;
+}
+
+</style>
+</head>
+
+
+
+<body>
+
+<div class="container">
+
+<h1>🩺 ANC Protocol Assistant by SRK</h1>
+
+<label>Enter LMP (Last Menstrual Period)</label>
+
+<input type="date" id="lmp">
+
+<button onclick="calculateANC()">🔍 Generate ANC Protocol</button>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+
+function calculateANC(){
+
+let lmpInput=document.getElementById("lmp").value;
+
+if(!lmpInput){
+alert("Please enter LMP");
+return;
+}
+
+let lmp=new Date(lmpInput);
+
+let today=new Date();
+
+let edd=new Date(lmp);
+edd.setDate(edd.getDate()+280);
+
+let diffTime=today-lmp;
+
+let diffDays=Math.floor(diffTime/(1000*60*60*24));
+
+let weeks=Math.floor(diffDays/7);
+
+let days=diffDays%7;
+
+let gestation=weeks+" weeks "+days+" days";
+
+let visitStage="";
+
+if(weeks<=12){
+visitStage="1st Trimester (0–12 weeks)";
+}
+
+else if(weeks<=20){
+visitStage="2nd Trimester Visit 1 (14–20 weeks)";
+}
+
+else if(weeks<=28){
+visitStage="2nd Trimester Visit 2 (21–28 weeks)";
+}
+
+else if(weeks<=34){
+visitStage="3rd Trimester Visit 1 (28–34 weeks)";
+}
+
+else if(weeks<=36){
+visitStage="3rd Trimester Visit 2 (32–36 weeks)";
+}
+
+else{
+visitStage="Term Pregnancy (37–40 weeks)";
+}
+
+document.getElementById("output").innerHTML=
+
+`
+<div class="resultbox">
+
+<h2>Pregnancy Details</h2>
+
+<p><b>LMP:</b> ${lmp.toDateString()}</p>
+
+<p><b>EDD:</b> ${edd.toDateString()}</p>
+
+<p><b>Gestational Age:</b> ${gestation}</p>
+
+<p><b>Current ANC Stage:</b> ${visitStage}</p>
+<div style="background:#ddd; border-radius:10px; overflow:hidden; margin:10px 0;">
+  <div style="width:${Math.min(weeks/40*100,100)}%; background:#2c7be5; height:12px; transition: width 0.5s;"></div>
+</div>
+<div id="alerts">
+
+</div>
+
+<div id="protocolArea"></div>
+
+`;
+let alerts="";
+
+if(weeks>=11 && weeks<=13){
+alerts+="⚠ NT Scan window (11–13+6 weeks)<br>";
+}
+
+if(weeks>=18 && weeks<=22){
+alerts+="⚠ Anomaly Scan due (18–22 weeks)<br>";
+}
+
+if(weeks>=24 && weeks<=28){
+alerts+="⚠ GDM screening recommended<br>";
+}
+
+if(weeks>=28 && weeks<=32){
+alerts+="⚠ Growth scan recommended<br>";
+}
+
+if(weeks>=36){
+alerts+="⚠ Delivery planning and weekly follow-up required<br>";
+}
+
+if(alerts!=""){
+document.getElementById("alerts").innerHTML=
+`<div class="alert">🚨 ANC Alerts<br>${alerts}</div>`;
+}
+showProtocol(weeks);
+
+}
+
+function showProtocol(weeks){
+
+let protocol="";
+
+if(weeks<=12){
+
+protocol=`
+
+<div class="resultbox">
+
+<h2>ANC Protocol — First Trimester (0–12 weeks)</h2>
+
+<table>
+
+<tr>
+<th>Gestational Age</th>
+<td>0–12 weeks (First Trimester Registration Visit)</td>
+</tr>
+
+<tr>
+<th>History Taking (Complete Obstetric History)</th>
+<td>
+
+<b>Obstetric History</b><br>
+
+• Gravida, Para, Living children<br>
+• Previous abortions / stillbirths / neonatal deaths<br>
+• Bad Obstetric History (BOH)<br>
+• Previous LSCS or instrumental delivery<br>
+• Previous pregnancy complications:<br>
+&nbsp;&nbsp;– PIH / Preeclampsia<br>
+&nbsp;&nbsp;– Gestational Diabetes<br>
+&nbsp;&nbsp;– Severe anemia<br>
+&nbsp;&nbsp;– Postpartum hemorrhage<br>
+&nbsp;&nbsp;– Placenta previa / Abruptio placenta<br>
+• Previous baby birth weight<br>
+• Spacing between pregnancies<br>
+• History of infertility treatment / ART<br>
+• Multiple pregnancy in past<br>
+
+<br>
+
+<b>Menstrual History</b><br>
+
+• Age at menarche<br>
+• Cycle regularity<br>
+• Last Menstrual Period (confirm exact date)<br>
+• Estimated Due Date calculation<br>
+
+<br>
+
+<b>Medical History</b><br>
+
+• Chronic hypertension<br>
+• Diabetes mellitus<br>
+• Thyroid disease<br>
+• Epilepsy<br>
+• Cardiac disease<br>
+• Tuberculosis / asthma<br>
+• Renal disease<br>
+• Previous blood transfusion<br>
+• Drug allergies<br>
+
+<br>
+
+<b>Surgical History</b><br>
+
+• Previous abdominal surgeries<br>
+• Previous LSCS<br>
+
+<br>
+
+<b>Family History</b><br>
+
+• Diabetes<br>
+• Hypertension<br>
+• Multiple pregnancy<br>
+• Congenital anomalies<br>
+
+<br>
+
+<b>Personal History</b><br>
+
+• Diet (veg / non-veg)<br>
+• Tobacco / alcohol use<br>
+• Socioeconomic status<br>
+
+</td>
+</tr>
+
+<tr>
+<th>🩺 Clinical Examination / Monitoring</th>
+<td>
+
+• Confirmation of pregnancy (Urine Pregnancy Test positive after ~35 days LMP)<br>
+
+<br>
+
+<b>General Examination</b><br>
+
+• Weight<br>
+• Height<br>
+• BMI calculation<br>
+• Pulse rate<br>
+• Blood Pressure<br>
+• Temperature if fever suspected<br>
+
+<br>
+
+<b>Look for</b><br>
+
+• Pallor (anemia)<br>
+• Icterus<br>
+• Pedal edema<br>
+• Lymphadenopathy<br>
+• Thyroid enlargement<br>
+
+<br>
+
+<b>Systemic Examination</b><br>
+
+• Cardiovascular system<br>
+• Respiratory system<br>
+
+<br>
+
+<b>Obstetric Examination</b><br>
+
+• Abdominal exam usually not significant before 12 weeks<br>
+• If uterus palpable above symphysis → suspect wrong dates or multiple pregnancy
+
+<br><br>
+
+<b>⚠ High-Risk Screening</b><br>
+
+Identify high risk mothers:<br>
+
+• Age <18 or >35<br>
+• Weight <40 kg<br>
+• Severe anemia suspected<br>
+• Previous LSCS<br>
+• BOH<br>
+• Chronic diseases (HTN, DM, heart disease)<br>
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations (Baseline)</th>
+<td>
+
+• Hemoglobin %<br>
+• Complete Blood Count<br>
+• Blood Group and Rh typing<br>
+• Urine albumin and sugar<br>
+• Urine routine examination<br>
+• VDRL (Syphilis)<br>
+• HIV test (ICTC counselling mandatory)<br>
+• HBsAg<br>
+• Peripheral smear for Malaria and Filariasis(endemic areas)<br>
+• Hemoglobinopathy screening (HPLC if indicated)<br>
+
+<br>
+
+<b>Immunization / Deworming</b><br>
+
+• Inj. Td / TT — 0.5 ml IM (1st dose)<br>
+• Tab Albendazole 400 mg single dose (after 12 weeks ideally)
+
+</td>
+</tr>
+
+<tr>
+<th>USG / Imaging</th>
+<td>
+
+<b>Essential scans</b><br>
+
+• Viability scan — 6 to 9 weeks<br>
+• Dating scan — 7 to 13+6 weeks<br>
+• NT scan — 11 to 13+6 weeks
+
+<br><br>
+
+<b>Indicated scans</b><br>
+
+• Vaginal bleeding / abdominal pain → Viability scan<br>
+• Uncertain LMP → Early dating scan
+
+</td>
+</tr>
+
+<tr>
+<th>Treatment / Supplements</th>
+<td>
+
+<b>Folic Acid</b><br>
+
+• Tab Folic Acid 400 mcg orally once daily until 12 weeks
+
+<br><br>
+
+<b>If anemia suspected</b><br>
+
+• Start Iron Folic Acid tablet (60 mg elemental iron + 500 mcg folic acid)
+
+<br><br>
+
+<b>Manage pre-existing disease</b><br>
+
+Examples:<br>
+
+• Hypothyroidism → Tab Levothyroxine (dose based on TSH)<br>
+• Chronic hypertension → Tab Labetalol 100 mg BD (if required)<br>
+
+</td>
+</tr>
+
+<tr>
+<th>Counselling</th>
+<td>
+
+Explain clearly to mother:
+
+<br><br>
+
+• Importance of early ANC registration<br>
+• Nutrition advice:
+
+&nbsp;&nbsp;– Eat green leafy vegetables<br>
+&nbsp;&nbsp;– Eggs / milk / pulses for protein<br>
+&nbsp;&nbsp;– Iron rich foods (dates, jaggery, greens)
+
+<br>
+
+• Avoid tobacco, alcohol and smoking
+
+<br>
+
+• Danger signs in early pregnancy:
+
+&nbsp;&nbsp;– Vaginal bleeding<br>
+&nbsp;&nbsp;– Severe abdominal pain<br>
+&nbsp;&nbsp;– Persistent vomiting<br>
+&nbsp;&nbsp;– Fever
+
+<br>
+
+• Encourage institutional delivery
+
+</td>
+</tr>
+
+<tr>
+<th>Referral / ⚠ High-Risk Alerts</th>
+<td>
+
+Refer to higher centre if:
+
+• Severe anemia suspected (Hb <7 gm%)<br>
+• Severe vomiting / dehydration<br>
+• Vaginal bleeding<br>
+• Severe abdominal pain<br>
+• Suspected ectopic pregnancy<br>
+• Cardiac disease<br>
+• Uncontrolled diabetes / hypertension
+
+</td>
+</tr>
+
+<tr>
+<th>📅 Next Visit</th>
+<td>
+
+14–20 weeks (Second Trimester Visit)
+
+</td>
+</tr>
+
+</table>
+
+</div>
+
+`;
+
+}
+else if(weeks<=20){
+
+protocol=`
+
+<div class="resultbox">
+
+<h2>ANC Protocol — Second Trimester Visit 1 (14–20 weeks)</h2>
+
+<table>
+
+<tr>
+<th>Gestational Age</th>
+<td>14–20 weeks</td>
+</tr>
+
+<tr>
+<th>🩺 Clinical Examination / Monitoring</th>
+<td>
+
+<b>General Examination</b><br>
+
+• Weight monitoring (expected gain ~1–2 kg from first visit)<br>
+• Pulse rate<br>
+• Blood Pressure<br>
+• Temperature if febrile illness suspected
+
+<br><br>
+
+<b>Look for</b><br>
+
+• Pallor (anemia)<br>
+• Pedal edema<br>
+• Jaundice<br>
+• Thyroid enlargement
+
+<br><br>
+
+<b>Obstetric Examination</b><br>
+
+• Fundal height (usually midway between symphysis pubis and umbilicus around 16 weeks)<br>
+• Fetal heart sound may be detected with Doppler (~16–18 weeks)
+
+<br><br>
+
+<b>Monitor for early PIH risk</b><br>
+
+• Record baseline BP for comparison later
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations (Should already be completed)</th>
+<td>
+
+• Hemoglobin %<br>
+• Complete Blood Count<br>
+• Blood Group and Rh typing<br>
+• Urine albumin and sugar<br>
+• VDRL<br>
+• HIV test<br>
+• HBsAg<br>
+• Hemoglobinopathy screening if indicated<br>
+
+<br>
+
+<b>Immunization / Deworming</b><br>
+
+• Inj Td 1st dose should already be given<br>
+• Albendazole 400 mg single dose (if not already given)
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations to be done now</th>
+<td>
+
+• Hemoglobin estimation (repeat)<br>
+• Urine albumin and sugar<br>
+
+<br>
+
+<b>Screening for Gestational Diabetes</b><br>
+
+• Glucose Challenge Test (GCT) at 12–16 weeks
+
+<br>
+
+Procedure:
+
+• Give 75 g oral glucose regardless of last meal<br>
+• Check plasma glucose after 2 hours
+
+<br>
+
+Interpretation:
+
+• ≥140 mg/dL → positive screen → refer for OGTT
+
+</td>
+</tr>
+
+<tr>
+<th>USG / Imaging</th>
+<td>
+
+<b>If not already done</b>
+
+<br><br>
+
+• Dating scan (7–13+6 weeks) if missed earlier<br>
+• NT scan (11–13+6 weeks)
+
+<br><br>
+
+<b>Upcoming important scan</b>
+
+• Targeted anomaly scan planned at **18–22 weeks**
+
+<br><br>
+
+<b>Indicated scans</b>
+
+• Vaginal bleeding → viability scan<br>
+• Uncertain LMP → dating scan
+
+</td>
+</tr>
+
+<tr>
+<th>Treatment / Supplements</th>
+<td>
+
+
+<b>Iron Folic Acid</b>
+
+<br>
+
+If Hb ≥11 g/dL:
+
+• Tab IFA (60 mg elemental iron + 500 mcg folic acid) — **1 tablet OD**
+
+<br>
+
+If Hb <11 g/dL:
+
+• Tab IFA — **1 tablet BD after meals**
+
+<br><br>
+
+<b>Calcium Supplementation</b>
+
+<br>
+
+• Tab Calcium 500 mg + Vitamin D3 — **1 tablet BD**
+
+<br>
+
+⚠ Keep **1 hour gap between calcium and iron**
+
+<br><br>
+
+<b>Immunization / Deworming</b><br>
+• Inj Td 2nd dose 0.5ml intramuscularly (4 weeks after the first dose)<br>
+• Single dose of Tab. Albendazole 400mg<br><br>
+
+<b>Other supplements</b>
+
+• Tab Multivitamin — OD<br>
+• Tab Vitamin C 100 mg — OD
+
+</td>
+</tr>
+
+<tr>
+<th>Counselling</th>
+<td>
+
+Explain to mother:
+
+<br><br>
+
+<b>Quickening</b>
+
+• Fetal movements usually felt around **18–20 weeks**
+
+<br>
+
+<b>Nutrition</b>
+
+• Increase protein intake (eggs / pulses / milk)<br>
+• Continue iron-rich foods<br>
+• Adequate hydration
+
+<br>
+
+<b>Activity advice</b>
+
+• Normal daily activity allowed<br>
+• Avoid heavy lifting
+
+<br>
+
+<b>Danger signs</b>
+
+Seek medical care if:
+
+• Vaginal bleeding<br>
+• Severe abdominal pain<br>
+• Fever<br>
+• Severe vomiting
+
+<br>
+
+<b>Birth planning</b>
+
+• Start discussion regarding institutional delivery
+
+</td>
+</tr>
+
+<tr>
+<th>Referral / ⚠ High-Risk Alerts</th>
+<td>
+
+Refer to higher centre if:
+
+• Hb <7 gm% (severe anemia)<br>
+• Positive GCT screen for GDM<br>
+• Persistent hypertension<br>
+• Vaginal bleeding<br>
+• Suspected congenital anomaly
+
+</td>
+</tr>
+
+<tr>
+<th>📅 Next Visit</th>
+<td>
+
+21–28 weeks (Second Trimester Visit 2)
+
+</td>
+</tr>
+
+</table>
+
+</div>
+
+`;
+
+}
+else if(weeks<=28){
+
+protocol=`
+
+<div class="resultbox">
+
+<h2>ANC Protocol — Second Trimester Visit 2 (21–28 weeks)</h2>
+
+<table>
+
+<tr>
+<th>Gestational Age</th>
+<td>21–28 weeks</td>
+</tr>
+
+<tr>
+<th>🩺 Clinical Examination / Monitoring</th>
+<td>
+
+<b>General Examination</b><br>
+
+• Weight monitoring (expected gain ~4–5 kg total by this time)<br>
+• Pulse rate<br>
+• Blood Pressure<br>
+
+<br>
+
+<b>Look for</b><br>
+
+• Pallor (anemia)<br>
+• Pedal edema<br>
+• Jaundice<br>
+
+<br><br>
+
+<b>Obstetric Examination</b><br>
+
+• Fundal height measurement (should correspond to gestational age)<br>
+• Fetal heart rate: **120–160 bpm** using Doppler / fetoscope<br>
+• Assess fetal movements
+
+<br><br>
+
+<b>Screen for PIH</b><br>
+
+• Mid-trimester fall in BP: There will be around 10% decrease in both Systolic and Diastolic Blood pressure of the mother during 18-24 weeks of Pregnancy. If no mid-trimester fall- pregnant women may develop PIH/Pre-eclampsia during delivery.<br>
+• <b>Roll-over test:</b> BP to be recorded first with the mother in Lateral Decubitus position/sitting position to find out baseline BP. Repeat BP with mother in supine position. If there is an increase in BP > 20 mm hg on supine position from baseline, the test is considered positive.<br>
+
+• Persistent rise may indicate PIH risk
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations (Should already be completed)</th>
+<td>
+
+• Hemoglobin %<br>
+• Complete Blood Count<br>
+• Blood Group and Rh typing<br>
+• Urine albumin and sugar<br>
+• VDRL<br>
+• HIV test<br>
+• HBsAg<br>
+• Hemoglobinopathy screening if indicated<br>
+• Inj Td 1st dose<br>
+• Inj Td 2nd dose<br>
+• Albendazole 400 mg single dose<br>
+• First GCT screening (12–16 weeks)
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations to be done now</th>
+<td>
+
+• Hemoglobin estimation<br>
+• Urine albumin and sugar
+
+<br><br>
+
+<b>GDM Screening (Repeat)</b><br>
+
+• Glucose Challenge Test **24–26 weeks**
+
+<br>
+
+Procedure:
+
+• 75 g oral glucose regardless of last meal<br>
+• Plasma glucose after 2 hours
+
+<br>
+
+Interpretation:
+
+• ≥140 mg/dL → positive → refer for OGTT
+
+</td>
+</tr>
+
+<tr>
+<th>USG / Imaging</th>
+<td>
+
+<b>Essential scan</b>
+
+<br><br>
+
+• Targeted anomaly scan **18–22 weeks (preferably 20 weeks)**
+
+<br>
+
+Purpose:
+
+• Detect congenital anomalies<br>
+• Placental location<br>
+• Fetal anatomy survey
+
+<br><br>
+
+<b>Indicated scans</b>
+
+<br>
+
+• ECHO<br>
+• Previous congenital anomaly history → targeted scan<br>
+• Suspected growth restriction → growth scan<br>
+• Maternal diabetes → growth monitoring later
+
+</td>
+</tr>
+
+<tr>
+<th>Treatment / Supplements</th>
+<td>
+
+<b>Iron Folic Acid</b>
+
+<br>
+
+If Hb ≥11 g/dL:
+
+• IFA tablet — **1 tablet OD**
+
+<br>
+
+If Hb 7–10.9 g/dL:
+
+• IFA tablet — **1 tablet BD**
+
+<br>
+
+If Hb 7.1–8.9 g/dL:
+
+• **IV Iron sucrose infusion** at PHC
+
+<br>
+
+If Hb <7 g/dL:
+
+• **Refer for blood transfusion**
+
+<br><br>
+
+<b>Calcium</b>
+
+<br>
+
+• Tab Calcium 500 mg + Vitamin D3 — **BD**
+
+<br>
+
+<b>Other supplements</b>
+
+• Tab Multivitamin — OD<br>
+• Tab Vitamin C 100 mg — OD
+
+<br>
+
+⚠ Maintain **1 hour gap between calcium and iron**
+
+</td>
+</tr>
+
+<tr>
+<th>Counselling</th>
+<td>
+
+<b>Fetal Movements</b>
+
+<br>
+
+• Mother should start recognizing fetal movements<br>
+• Movements usually clearly felt by **20–22 weeks**
+
+<br><br>
+
+<b>Nutrition Advice</b>
+
+• Increase iron-rich foods<br>
+• Adequate protein intake<br>
+• Drink sufficient fluids
+
+<br><br>
+
+<b>Birth Planning</b>
+
+• Discuss delivery place (PHC / GH / CEmONC centre)<br>
+• Inform family regarding institutional delivery
+
+<br><br>
+
+<b>Danger Signs</b>
+
+Seek medical care if:
+
+• Vaginal bleeding<br>
+• Severe headache<br>
+• Blurring of vision<br>
+• Reduced fetal movements<br>
+• Abdominal pain
+
+</td>
+</tr>
+
+<tr>
+<th>Referral / ⚠ High-Risk Alerts</th>
+<td>
+
+Refer if:
+
+• Hb <7 g/dL<br>
+• Positive GDM screening<br>
+• Abnormal anomaly scan<br>
+• Suspected fetal growth restriction<br>
+• Hypertension / preeclampsia symptoms
+
+</td>
+</tr>
+
+<tr>
+<th>📅 Next Visit</th>
+<td>
+
+28–34 weeks (Third Trimester Visit 1)
+
+</td>
+</tr>
+
+</table>
+
+</div>
+
+`;
+
+}
+else if(weeks<=34){
+
+protocol=`
+
+<div class="resultbox">
+
+<h2>ANC Protocol — Third Trimester Visit 1 (28–34 weeks)</h2>
+
+<table>
+
+<tr>
+<th>Gestational Age</th>
+<td>28–34 weeks</td>
+</tr>
+
+<tr>
+<th>🩺 Clinical Examination / Monitoring</th>
+<td>
+
+<b>General Examination</b><br>
+
+• Weight monitoring (total gain ~6–8 kg expected)<br>
+• Pulse rate<br>
+• Blood Pressure monitoring (important for PIH detection)<br>
+
+<br>
+
+<b>Look for</b><br>
+
+• Pallor (anemia)<br>
+• Pedal edema<br>
+• Jaundice<br>
+
+<br><br>
+
+<b>Obstetric Examination</b><br>
+
+• Fundal height measurement (should correspond to gestational age)<br>
+• Fetal heart rate: **120–160 bpm**<br>
+• Assess fetal movements<br>
+• Lie and presentation may begin to be appreciated
+
+<br><br>
+
+<b>PIH Screening</b><br>
+
+• BP monitoring at every visit<br>
+• Check for edema, headache, visual disturbances<br>
+• <b>Roll-over test</b> to be carried out to identify PIH
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations (Should already be completed)</th>
+<td>
+
+• Hemoglobin %<br>
+• CBC<br>
+• Blood group & Rh typing<br>
+• Urine albumin and sugar<br>
+• VDRL<br>
+• HIV<br>
+• HBsAg<br>
+• Hemoglobinopathy screening if indicated<br>
+• Inj Td 1st dose<br>
+• Inj Td 2nd dose<br>
+• Albendazole 400 mg<br>
+• GCT screening (1st and 2nd)<br>
+• ECHO
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations to be done now</th>
+<td>
+
+• Hemoglobin estimation<br>
+• Urine albumin and sugar
+
+<br><br>
+
+<b>Fetal Growth Assessment</b>
+
+• Growth scan around **28–32 weeks**
+
+Purpose:
+
+• Assess fetal growth<br>
+• Amniotic fluid adequacy<br>
+• Placental position
+
+</td>
+</tr>
+
+<tr>
+<th>USG / Imaging</th>
+<td>
+
+<b>Essential scan</b>
+
+• Growth scan (28–32 weeks)
+
+<br><br>
+
+<b>Indicated scans</b>
+
+• Maternal diabetes → growth monitoring<br>
+• PIH / preeclampsia → Doppler study<br>
+• Suspected IUGR → Growth + Doppler<br>
+• Reduced fetal movements → Immediate USG + NST
+
+</td>
+</tr>
+
+<tr>
+<th>Treatment / Supplements</th>
+<td>
+
+<b>Iron Folic Acid</b>
+
+<br>
+
+If Hb ≥11 g/dL:
+
+• IFA tablet — **1 tablet OD**
+
+<br>
+
+If Hb <11 g/dL:
+
+• IFA tablet — **1 tablet BD**
+
+<br>
+
+If Hb 7.1–8.9 g/dL:
+
+• **Oral Iron therapy (Therapeutic dose).** No Intravenous transfusion of Iron sucrose/Blood/PRBC.
+
+If Hb <7 g/dL:
+
+• **Refer for blood transfusion**<br>
+⚠ <b>CRITICAL WARNING:</b> No INTRAVENOUS INFUSION during 30-34 weeks of gestation. Intravenous infusion of NS/iron sucrose/fresh blood/packed cell will cause volume overload and circulatory collapse.
+
+
+<br><br>
+
+<b>Calcium</b>
+
+• Tab Calcium 500 mg + Vitamin D3 — **BD**
+
+<br>
+
+<b>Other supplements</b>
+
+• Tab Multivitamin — OD<br>
+• Tab Vitamin C 100 mg — OD
+
+<br>
+
+⚠ Maintain **1 hour gap between iron and calcium**
+
+</td>
+</tr>
+
+<tr>
+<th>Counselling</th>
+<td>
+
+<b>Fetal Kick Count</b>
+
+Mother should monitor fetal movements:
+
+• At least **10 movements in 12 hours**
+
+<br><br>
+
+<b>Nutrition</b>
+
+• Continue iron-rich foods<br>
+• Adequate protein intake
+
+<br><br>
+
+<b>Birth Planning</b>
+
+• Decide place of delivery<br>
+• Inform family about expected delivery time<br>
+• Arrange transport plan
+
+<br><br>
+
+<b>Danger Signs</b>
+
+Seek medical care if:
+
+• Reduced fetal movements<br>
+• Vaginal bleeding<br>
+• Severe headache<br>
+• Blurring of vision<br>
+• Severe abdominal pain
+
+</td>
+</tr>
+
+<tr>
+<th>Referral / ⚠ High-Risk Alerts</th>
+<td>
+
+Refer to higher centre if:
+
+• Hb <9 g/dL after 30 weeks<br>
+• Abnormal growth scan<br>
+• Suspected IUGR<br>
+• PIH / preeclampsia symptoms<br>
+• Reduced fetal movements
+
+</td>
+</tr>
+
+<tr>
+<th>📅 Next Visit</th>
+<td>
+
+32–36 weeks (Third Trimester Visit 2)
+
+</td>
+</tr>
+
+</table>
+
+</div>
+
+`;
+
+}
+else if(weeks<=36){
+
+protocol=`
+
+<div class="resultbox">
+
+<h2>ANC Protocol — Third Trimester Visit 2 (32–36 weeks)</h2>
+
+<table>
+
+<tr>
+<th>Gestational Age</th>
+<td>32–36 weeks</td>
+</tr>
+
+<tr>
+<th>🩺 Clinical Examination / Monitoring</th>
+<td>
+
+<b>General Examination</b><br>
+
+• Weight monitoring<br>
+• Pulse rate<br>
+• Blood Pressure
+
+<br><br>
+
+<b>Look for</b><br>
+
+• Pallor<br>
+• Pedal edema<br>
+• Jaundice
+
+<br><br>
+
+<b>Obstetric Examination</b><br>
+
+• Fundal height measurement<br>
+• Fetal heart rate **120–160 bpm**<br>
+• Assess fetal movements<br>
+• Assess fetal lie and presentation
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations (Should already be completed)</th>
+<td>
+
+• Hemoglobin %<br>
+• CBC<br>
+• Blood group & Rh typing<br>
+• Urine albumin and sugar<br>
+• VDRL<br>
+• HIV<br>
+• HBsAg<br>
+• Hemoglobinopathy screening if indicated<br>
+• Inj Td 1st dose<br>
+• Inj Td 2nd dose<br>
+• Albendazole 400 mg<br>
+• GCT screening (1st & 2nd)<br>
+• ECHO
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations to be done now</th>
+<td>
+
+• Hemoglobin estimation<br>
+• Urine albumin and sugar
+
+<br><br>
+
+<b>Repeat GDM screening</b>
+
+• Glucose Challenge Test **32–34 weeks**
+
+</td>
+</tr>
+
+<tr>
+<th>USG / Imaging</th>
+<td>
+
+<b>Growth Scan</b>
+
+• If not done earlier
+
+<br><br>
+
+<b>Indicated scans</b>
+
+• Doppler if PIH / suspected IUGR<br>
+• Growth scan if maternal diabetes<br>
+• Immediate USG + NST if reduced fetal movements
+
+</td>
+</tr>
+
+<tr>
+<th>Treatment / Supplements</th>
+<td>
+
+<b>Iron Folic Acid</b>
+
+• Continue IFA tablet **1 BD**
+
+<br>
+
+<b>Calcium</b>
+
+• Calcium 500 mg + Vitamin D3 **BD**
+
+<br>
+
+<b>Other supplements</b>
+
+• Multivitamin OD<br>
+• Vitamin C 100 mg OD
+
+</td>
+</tr>
+
+<tr>
+<th>Counselling</th>
+<td>
+
+<b>Fetal Kick Count</b>
+
+• At least **10 movements in 12 hours**
+
+<br><br>
+
+<b>Birth preparedness</b>
+
+• Decide hospital for delivery<br>
+• Arrange transport plan
+
+<br><br>
+
+<b>Danger signs</b>
+
+• Reduced fetal movements<br>
+• Vaginal bleeding<br>
+• Severe headache / visual disturbance
+
+</td>
+</tr>
+
+<tr>
+<th>Referral / ⚠ High-Risk Alerts</th>
+<td>
+
+Refer if:
+
+• Hb <9 g/dL<br>
+• Abnormal growth scan<br>
+• PIH / preeclampsia symptoms
+
+</td>
+</tr>
+
+<tr>
+<th>📅 Next Visit</th>
+<td>
+
+37–40 weeks (Weekly follow-up)
+
+</td>
+</tr>
+
+</table>
+
+</div>
+
+`;
+
+}
+
+else{
+
+protocol=`
+
+<div class="resultbox">
+
+<h2>ANC Protocol — Term Pregnancy (37–40 weeks)</h2>
+
+<table>
+
+<tr>
+<th>Gestational Age</th>
+<td>37–40 weeks</td>
+</tr>
+
+<tr>
+<th>🩺 Clinical Examination / Monitoring</th>
+<td>
+
+• Weekly visits<br>
+• Weight monitoring<br>
+• Pulse rate<br>
+• Blood Pressure
+
+<br><br>
+
+<b>Obstetric Examination</b>
+
+<br>
+
+• Fundal height<br>
+• Fetal heart rate **120–160 bpm**<br>
+• Fetal lie and presentation<br>
+• Assess fetal movements
+
+</td>
+</tr>
+
+<tr>
+<th>💉 Investigations (Completed)</th>
+<td>
+
+• Hb<br>
+• Urine albumin<br>
+• GDM screening<br>
+• Growth scan
+
+</td>
+</tr>
+
+<tr>
+<th>USG / Imaging</th>
+<td>
+
+<b>Late Pregnancy Scan</b>
+
+• 36–37 weeks to confirm presentation
+
+<br><br>
+
+<b>Indicated scans</b>
+
+• Doppler if PIH / IUGR<br>
+• Immediate USG + NST if reduced fetal movements
+
+</td>
+</tr>
+
+<tr>
+<th>Treatment / Supplements</th>
+<td>
+
+• Continue Iron Folic Acid BD<br>
+• Continue Calcium BD<br>
+• Multivitamin OD
+
+</td>
+</tr>
+
+<tr>
+<th>Counselling</th>
+<td>
+
+<b>Signs of Labour</b>
+
+<br>
+
+• Regular painful contractions<br>
+• Leakage of fluid per vagina<br>
+• Vaginal bleeding
+
+<br><br>
+
+<b>Immediate hospital visit if</b>
+
+• Reduced fetal movements<br>
+• Severe abdominal pain<br>
+• Severe headache / blurred vision
+
+</td>
+</tr>
+
+<tr>
+<th>Referral / ⚠ High-Risk Alerts</th>
+<td>
+
+• Previous LSCS<br>
+• PIH / preeclampsia<br>
+• IUGR<br>
+• Abnormal fetal presentation
+
+</td>
+</tr>
+
+<tr>
+<th>📅 Next Visit</th>
+<td>
+
+Weekly until delivery
+
+</td>
+</tr>
+
+</table>
+
+</div>
+
+`;
+
+}
+
+let protocolClass = "";
+if(weeks <= 12) protocolClass = "first-trimester";
+else if(weeks <= 20) protocolClass = "second-trimester";
+else if(weeks <= 28) protocolClass = "second-trimester";
+else if(weeks <= 34) protocolClass = "third-trimester";
+else if(weeks <= 36) protocolClass = "third-trimester";
+else protocolClass = "term";
+
+document.getElementById("protocolArea").innerHTML = `<div class="${protocolClass}">${protocol}</div>`;
+
+}
+window.onscroll = function() {
+  let topButton = document.getElementById("backToTop");
+  if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+    topButton.style.display = "block";
+  } else {
+    topButton.style.display = "none";
+  }
+};
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+</script>
+<button id="backToTop" onclick="scrollToTop()">⬆️ Top</button>
+
+</body>
+</html>
+
