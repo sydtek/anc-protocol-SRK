@@ -179,15 +179,38 @@ table tr:hover {
 
 <h1>🩺 ANC Protocol Assistant by SRK</h1>
 
-<label>Enter LMP (Last Menstrual Period)</label>
-
+<label>Enter LMP (Last Menstrual Period) *</label>
 <input type="date" id="lmp">
+
+<label style="margin-top:10px; display:block;">Optional Patient Vitals & Labs</label>
+<div style="display: flex; gap: 10px; margin-bottom: 5px;">
+  <div style="flex: 1;">
+    <label style="font-size: 14px; color: #555; font-weight: normal;">Hb (g/dL)</label>
+    <input type="number" id="hb" step="0.1" style="margin-top: 4px;">
+  </div>
+  <div style="flex: 1;">
+    <label style="font-size: 14px; color: #555; font-weight: normal;">OGCT 75g (mg/dL)</label>
+    <input type="number" id="ogct" style="margin-top: 4px;">
+  </div>
+</div>
+<div style="display: flex; gap: 10px; margin-bottom: 15px;">
+  <div style="flex: 1;">
+    <label style="font-size: 14px; color: #555; font-weight: normal;">Systolic BP</label>
+    <input type="number" id="sbp" style="margin-top: 4px;">
+  </div>
+  <div style="flex: 1;">
+    <label style="font-size: 14px; color: #555; font-weight: normal;">Diastolic BP</label>
+    <input type="number" id="dbp" style="margin-top: 4px;">
+  </div>
+</div>
 
 <button onclick="calculateANC()">🔍 Generate ANC Protocol</button>
 
 <div id="output"></div>
 
 </div>
+
+
 
 <script>
 
@@ -196,23 +219,25 @@ function calculateANC(){
 let lmpInput=document.getElementById("lmp").value;
 
 if(!lmpInput){
-alert("Please enter LMP");
+alert("Enter LMP");
 return;
 }
 
-let lmp=new Date(lmpInput);
+let hb=parseFloat(document.getElementById("hb").value);
+let ogct=parseFloat(document.getElementById("ogct").value);
+let sbp=parseInt(document.getElementById("sbp").value);
+let dbp=parseInt(document.getElementById("dbp").value);
 
+let lmp=new Date(lmpInput);
 let today=new Date();
 
 let edd=new Date(lmp);
 edd.setDate(edd.getDate()+280);
 
 let diffTime=today-lmp;
-
 let diffDays=Math.floor(diffTime/(1000*60*60*24));
 
 let weeks=Math.floor(diffDays/7);
-
 let days=diffDays%7;
 
 let gestation=weeks+" weeks "+days+" days";
@@ -220,79 +245,156 @@ let gestation=weeks+" weeks "+days+" days";
 let visitStage="";
 
 if(weeks<=12){
-visitStage="1st Trimester (0–12 weeks)";
+visitStage="1st Trimester (Registration visit)";
 }
-
 else if(weeks<=20){
-visitStage="2nd Trimester Visit 1 (14–20 weeks)";
+visitStage="2nd Trimester Visit (14-20 weeks)";
 }
-
 else if(weeks<=28){
-visitStage="2nd Trimester Visit 2 (21–28 weeks)";
+visitStage="2nd Trimester Visit (21-28 weeks)";
 }
-
 else if(weeks<=34){
-visitStage="3rd Trimester Visit 1 (28–34 weeks)";
+visitStage="3rd Trimester Visit (28-34 weeks)";
 }
-
 else if(weeks<=36){
-visitStage="3rd Trimester Visit 2 (32–36 weeks)";
+visitStage="3rd Trimester Visit (32-36 weeks)";
 }
-
 else{
-visitStage="Term Pregnancy (37–40 weeks)";
+visitStage="Term Pregnancy (37-40 weeks)";
 }
 
-document.getElementById("output").innerHTML=
+// --- NEW: Calculate Expected Weight Gain ---
+let weightGain = "Initial baseline recording.";
+if(weeks > 12 && weeks <= 20) weightGain = "~1–2 kg from first visit.";
+else if(weeks > 20 && weeks <= 28) weightGain = "~4–5 kg total by this time.";
+else if(weeks > 28 && weeks <= 34) weightGain = "~6–8 kg total expected.";
+else if(weeks > 34) weightGain = "~10-12 kg total by term.";
 
-`
+let output="";
+
+output+=`
 <div class="resultbox">
-
 <h2>Pregnancy Details</h2>
 
 <p><b>LMP:</b> ${lmp.toDateString()}</p>
-
 <p><b>EDD:</b> ${edd.toDateString()}</p>
-
 <p><b>Gestational Age:</b> ${gestation}</p>
+<p><b>ANC Stage:</b> ${visitStage}</p>
+<p><b>Expected Weight Gain:</b> ${weightGain}</p>
 
-<p><b>Current ANC Stage:</b> ${visitStage}</p>
-<div style="background:#ddd; border-radius:10px; overflow:hidden; margin:10px 0;">
-  <div style="width:${Math.min(weeks/40*100,100)}%; background:#2c7be5; height:12px; transition: width 0.5s;"></div>
+<div style="background:#ddd;border-radius:10px;overflow:hidden;margin:10px 0;">
+<div style="width:${Math.min(weeks/40*100,100)}%;background:#2c7be5;height:12px;"></div>
 </div>
-<div id="alerts">
-
-</div>
-
-<div id="protocolArea"></div>
-
 `;
+
+/* ---------------------------
+ANEMIA PROTOCOL
+--------------------------- */
+let hbStatus="";
+if(!isNaN(hb)){
+  if(weeks<=16){
+    if(hb<7) hbStatus="<b>Severe anemia</b> → REFER to CEmONC for blood transfusion.";
+    else if(hb<=10.9) hbStatus="<b>Moderate anemia</b> → Therapeutic dose: Tab Ferrous sulphate 60 mg elemental iron 1 BD, 0.5 mg folic acid, Vit B12 15mcg, Vit C 100 mg OD.";
+    else hbStatus="<b>Normal</b> → Preventive dose: Tab Ferrous sulphate 60 mg elemental iron 1 OD, 0.5 mg folic acid, Vit B12 15mcg, Vit C 100 mg OD.";
+  }
+  else if(weeks<=24){
+    if(hb<7) hbStatus="<b>Severe anemia</b> → REFER to CEmONC.";
+    else if(hb<=8.9) hbStatus="<b>Moderate anemia</b> → IV Iron Sucrose Intravenous infusion 4 doses of 100 mg over 2 weeks (2-4 days interval).";
+    else if(hb<=10.9) hbStatus="<b>Mild anemia</b> → Therapeutic dose: Tab Ferrous sulphate 60 mg elemental iron 1 BD.";
+    else hbStatus="<b>Normal</b> → Preventive dose: Tab Ferrous sulphate 60 mg elemental iron 1 OD.";
+  }
+  else if(weeks<=30){
+    if(hb<7) hbStatus="<b>Severe anemia</b> → REFER higher centre.";
+    else if(hb<=9) hbStatus="<b>Moderate anemia</b> → If not received earlier: IV Iron Sucrose 4 doses. If received earlier: Two top-up doses of Injection Iron Sucrose.";
+    else if(hb<=11) hbStatus="<b>Mild anemia</b> → Therapeutic IFA (1 BD).";
+    else hbStatus="<b>Normal</b> → Preventive IFA (1 OD).";
+  }
+  else{
+    if(hb<7) hbStatus="<b>Severe anemia</b> → REFER CEmONC. <br><span style='color:red;'>⚠ CRITICAL: No IV infusion after 30-34 weeks (Volume overload risk). Only Oral Iron therapy (Therapeutic dose).</span>";
+    else if(hb<=10.9) hbStatus="<b>Mild/Moderate anemia</b> → Oral IFA therapeutic dose (1 BD).";
+    else hbStatus="<b>Normal</b> → Preventive IFA (1 OD).";
+  }
+}
+
+/* ---------------------------
+GDM PROTOCOL
+--------------------------- */
+let gdmStatus="";
+if(!isNaN(ogct)){
+  if(ogct < 70){
+    gdmStatus=`<b style='color:red;'>Hypoglycemia Alert (${ogct} mg/dL)</b><br>• Value is abnormally low.<br>• Advise immediate oral glucose intake and medical evaluation.`;
+
+  } else if(ogct>=140){
+    gdmStatus="<b>GDM Positive</b><br>1. Start Meal Plan (+300 kcal split diet) and mild exercise.<br>2. Recheck PPBS (2 hrs after food) after 15 days.<br>• If PPBS < 120 mg/dl: Continue Meal Plan.<br>• If PPBS ≥ 120 mg/dl: Start Inj. Mixtard 4 to 8 I.U. s.c. at Mid-Thigh. Monitor every 15 days to maintain PPBS 110-120mg/dl. (Refer to MD if dose > 20 IU).";
+  } else {
+    gdmStatus="<b>Normal (Non-GDM)</b> → Continue routine ANC screening schedule.";
+  }
+}
+
+/* ---------------------------
+PIH PROTOCOL
+--------------------------- */
+let bpStatus="";
+if(!isNaN(sbp) && !isNaN(dbp)){
+  if(sbp>=160 || dbp>=110){
+    bpStatus="<b style='color:red;'>Severe PIH / Pre-Eclampsia</b><br>• Start 20 mg IV Labetalol stat over 2 minutes. Repeat BP after 10 mins. If not reduced, give 40mg IV Labetalol.<br>• Refer to CEMONC centre immediately.<br>• <b>Seizure Prophylaxis:</b> Loading dose of Inj. MgSO4 (8ml MgSO4 in 12ml distilled water IV over 5 mins, AND 5g in each buttock deep IM with 1ml 2% Lignocaine).";
+  }
+  else if(sbp>120 || dbp>80){
+    bpStatus="<b style='color:orange;'>Elevated BP / PIH Risk</b><br>• Repeat BP after 30 mins.<br>• If SBP > 120 or DBP > 80 persists, start Tab Labetalol 100mg BD.<br>• Refer to General Physician/Obstetrician at CEMONC/GH/MCH for further management. (Dose can be increased max 2400mg/day).";
+  } else {
+    bpStatus="<b>Normal BP</b>";
+  }
+}
+
+/* ---------------------------
+ALERTS
+--------------------------- */
 let alerts="";
+if(weeks>=11 && weeks<=13){ alerts+="⚠ NT scan window (11-13+6 weeks)<br>"; }
+if(weeks>=18 && weeks<=22){ alerts+="⚠ Anomaly scan due (18-22 weeks)<br>"; }
+if(weeks>=24 && weeks<=28){ alerts+="⚠ GDM screening recommended<br>"; }
+if(weeks>=28 && weeks<=32){ alerts+="⚠ Growth scan recommended<br>"; }
+if(weeks>=36){ alerts+="⚠ Delivery planning + weekly follow-up required<br>"; }
 
-if(weeks>=11 && weeks<=13){
-alerts+="⚠ NT Scan window (11–13+6 weeks)<br>";
-}
+/* ---------------------------
+DISPLAY RESULTS (Conditionally show table)
+--------------------------- */
+let hasVitals = (!isNaN(hb) || !isNaN(ogct) || (!isNaN(sbp) && !isNaN(dbp)));
 
-if(weeks>=18 && weeks<=22){
-alerts+="⚠ Anomaly Scan due (18–22 weeks)<br>";
-}
-
-if(weeks>=24 && weeks<=28){
-alerts+="⚠ GDM screening recommended<br>";
-}
-
-if(weeks>=28 && weeks<=32){
-alerts+="⚠ Growth scan recommended<br>";
-}
-
-if(weeks>=36){
-alerts+="⚠ Delivery planning and weekly follow-up required<br>";
+if(hasVitals) {
+  output+=`
+  <div class="resultbox" style="border-left: 5px solid #6c5ce7; margin-top:0px; padding-top:10px;">
+  <h3 style="margin-top:0;">🧑‍⚕️ Clinical Assessment</h3>
+  <table border="1" cellpadding="8" style="width:100%; border-collapse:collapse; margin-top:10px;">
+  `;
+  
+  if(!isNaN(hb)) {
+    output+=`<tr><th style=" background:#2c7be5; color:white;">Hemoglobin</th><td>${hbStatus}</td></tr>`;
+  }
+  if(!isNaN(ogct)) {
+    output+=`<tr><th style=" background:#2c7be5; color:white;">OGCT (75g)</th><td>${gdmStatus}</td></tr>`;
+  }
+  if(!isNaN(sbp) && !isNaN(dbp)) {
+    output+=`<tr><th style=" background:#2c7be5; color:white;">Blood Pressure</th><td>${bpStatus}</td></tr>`;
+  }
+  
+  output+=`</table></div>`;
 }
 
 if(alerts!=""){
-document.getElementById("alerts").innerHTML=
-`<div class="alert">🚨 ANC Alerts<br>${alerts}</div>`;
+  output+=`
+  <div class="alert" style="margin-top:15px;">
+  <h3 style="margin:0;">🚨 ANC Alerts</h3>
+  ${alerts}
+  </div>
+  `;
 }
+
+output+=`<div id="protocolArea"></div>`;
+output+=`</div>`;
+
+document.getElementById("output").innerHTML=output;
+
 showProtocol(weeks);
 
 }
@@ -311,10 +413,6 @@ protocol=`
 
 <table>
 
-<tr>
-<th>Gestational Age</th>
-<td>0–12 weeks (First Trimester Registration Visit)</td>
-</tr>
 
 <tr>
 <th>History Taking (Complete Obstetric History)</th>
@@ -593,10 +691,6 @@ protocol=`
 
 <table>
 
-<tr>
-<th>Gestational Age</th>
-<td>14–20 weeks</td>
-</tr>
 
 <tr>
 <th>🩺 Clinical Examination / Monitoring</th>
@@ -846,10 +940,6 @@ protocol=`
 
 <table>
 
-<tr>
-<th>Gestational Age</th>
-<td>21–28 weeks</td>
-</tr>
 
 <tr>
 <th>🩺 Clinical Examination / Monitoring</th>
@@ -1104,10 +1194,6 @@ protocol=`
 
 <table>
 
-<tr>
-<th>Gestational Age</th>
-<td>28–34 weeks</td>
-</tr>
 
 <tr>
 <th>🩺 Clinical Examination / Monitoring</th>
@@ -1341,10 +1427,6 @@ protocol=`
 
 <table>
 
-<tr>
-<th>Gestational Age</th>
-<td>32–36 weeks</td>
-</tr>
 
 <tr>
 <th>🩺 Clinical Examination / Monitoring</th>
@@ -1522,10 +1604,6 @@ protocol=`
 
 <table>
 
-<tr>
-<th>Gestational Age</th>
-<td>37–40 weeks</td>
-</tr>
 
 <tr>
 <th>🩺 Clinical Examination / Monitoring</th>
@@ -1675,4 +1753,3 @@ function scrollToTop() {
 
 </body>
 </html>
-
