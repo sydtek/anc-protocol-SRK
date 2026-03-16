@@ -287,7 +287,7 @@ output+=`
 </div>
 `;
 
-/* ---------------------------
+  /* ---------------------------
 ANEMIA PROTOCOL
 --------------------------- */
 let hbStatus="";
@@ -310,9 +310,18 @@ if(!isNaN(hb)){
     else hbStatus="<b>Normal</b> → Preventive IFA (1 OD).";
   }
   else{
-    if(hb<7) hbStatus="<b>Severe anemia</b> → REFER CEmONC. <br><span style='color:red;'>⚠ CRITICAL: No IV infusion after 30-34 weeks (Volume overload risk). Only Oral Iron therapy (Therapeutic dose).</span>";
-    else if(hb<=10.9) hbStatus="<b>Mild/Moderate anemia</b> → Oral IFA therapeutic dose (1 BD).";
-    else hbStatus="<b>Normal</b> → Preventive IFA (1 OD).";
+    if(hb<7) {
+        hbStatus="<b>Severe anemia</b> → REFER to Higher Institutions (CEmONC centres) for Blood transfusion and further management.";
+    }
+    else if(hb<=8.9) {
+        hbStatus="<b>Moderate anemia</b> → <span style='color:red; font-weight:bold;'>⚠ CRITICAL: No Intravenous transfusion of Iron sucrose/Blood/PRBC.</span> Only Oral Iron therapy (Therapeutic dose 1 BD).";
+    }
+    else if(hb<=10.9) {
+        hbStatus="<b>Mild anemia</b> → Therapeutic dose: Tab Ferrous sulphate 60 mg elemental iron 1 BD.";
+    }
+    else {
+        hbStatus="<b>Normal</b> → Preventive dose: Tab Ferrous sulphate 60 mg elemental iron 1 OD.";
+    }
   }
 }
 
