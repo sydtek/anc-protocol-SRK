@@ -309,12 +309,23 @@ if(!isNaN(hb)){
     else if(hb<=11) hbStatus="<b>Mild anemia</b> → Therapeutic IFA (1 BD).";
     else hbStatus="<b>Normal</b> → Preventive IFA (1 OD).";
   }
-  else{
+  else if(weeks<=34){
     if(hb<7) {
         hbStatus="<b>Severe anemia</b> → REFER to Higher Institutions (CEmONC centres) for Blood transfusion and further management.";
     }
     else if(hb<=8.9) {
-        hbStatus="<b>Moderate anemia</b> → <span style='color:red; font-weight:bold;'>⚠ CRITICAL: No Intravenous transfusion of Iron sucrose/Blood/PRBC.</span> Only Oral Iron therapy (Therapeutic dose 1 BD).";
+        hbStatus="<b>Moderate anemia</b> → <b style='color:red;'>REFER to higher centre.</b> <br><span style='color:red; font-weight:bold;'>⚠ CRITICAL: No Intravenous transfusion of Iron sucrose/Blood/PRBC.</span> Only Oral Iron therapy (Therapeutic dose 1 BD).";
+    }
+    else if(hb<=10.9) {
+        hbStatus="<b>Mild anemia</b> → Therapeutic dose: Tab Ferrous sulphate 60 mg elemental iron 1 BD.";
+    }
+    else {
+        hbStatus="<b>Normal</b> → Preventive dose: Tab Ferrous sulphate 60 mg elemental iron 1 OD.";
+    }
+  }
+  else { // Term / >34 weeks
+    if(hb<9) {
+        hbStatus="<b>Moderate/Severe anemia</b> → <b style='color:red;'>REFER to higher institution</b> for fresh Blood transfusion/Fresh packed cell transfusion.";
     }
     else if(hb<=10.9) {
         hbStatus="<b>Mild anemia</b> → Therapeutic dose: Tab Ferrous sulphate 60 mg elemental iron 1 BD.";
